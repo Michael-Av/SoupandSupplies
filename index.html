@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free-Finding | NYC Resource Network</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-blue: #0d6efd;
+            --soft-bg: #f8f9fa;
+        }
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--soft-bg);
+            overflow: hidden;
+        }
+        
+        .top-nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #666;
+            font-weight: 600;
+            padding: 15px 25px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .nav-tabs .nav-link.active {
+            color: var(--primary-blue);
+            border-bottom: 3px solid var(--primary-blue);
+            background: transparent;
+        }
+
+        #main-container {
+            display: flex;
+            height: 100vh;
+            padding-top: 56px;
+        }
+
+        #submission-panel {
+            width: 420px;
+            background: white;
+            height: 100%;
+            overflow-y: auto;
+            border-right: 1px solid #dee2e6;
+            padding: 25px;
+            display: none;
+        }
+
+        #map-container {
+            flex-grow: 1;
+            position: relative;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-overlay-widget {
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .search-widget { top: 75px; right: 20px; display: flex; gap: 8px; width: 300px; }
+        
+        #filter-bar {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            max-width: 90%;
+            overflow-x: auto;
+        }
+        .filter-select { border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #555; background: transparent; }
+        .filter-select:focus { outline: none; }
+        .filter-divider { width: 1px; height: 20px; background: #ddd; }
+
+        .form-label { font-weight: 600; font-size: 0.85rem; color: #444; }
+        .form-section-title { font-family: 'Montserrat', sans-serif; font-size: 1rem; margin-top: 20px; margin-bottom: 15px; color: var(--primary-blue); border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
+
+        .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; }
+        .popup-header { background: var(--primary-blue); color: white; padding: 10px 15px; font-weight: bold; }
+        .popup-body { padding: 12px; }
+
+        #mode-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            pointer-events: none;
+            display: none;
+        }
+
+        #auth-status-chip {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .timing-detail-box {
+            background: #f1f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            #submission-panel { width: 100%; position: absolute; z-index: 3000; top: 56px; height: calc(100% - 56px); }
+            #filter-bar { top: 10px; padding: 5px 10px; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <ul class="nav nav-tabs justify-content-center" id="modeTabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="switchMode('viewing')">
+                    <i class="bi bi-map me-2"></i>Explore Map
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="contributeLink">
+                    <i class="bi bi-plus-circle me-2"></i>Contribute Resource
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="main-container">
+        <!-- Submission Panel -->
+        <div id="submission-panel">
+            <h4 class="fw-bold mb-3">Submit Resource</h4>
+            
+            <form id="resourceForm">
+                <div class="form-section-title">1. Location Details</div>
+                
+                <div class="mb-3">
+                    <label class="form-label" for="form-address">Resource Address</label>
+                    <div class="input-group">
+                        <input type="text" id="form-address" class="form-control" placeholder="e.g. 500 W 42nd St, NYC" required>
+                        <button class="btn btn-outline-primary" type="button" onclick="findAddress()"><i class="bi bi-geo-alt"></i></button>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="borough">Borough</label>
+                    <select id="borough" class="form-select" required>
+                        <option value="" selected disabled>Select borough...</option>
+                        <option>Manhattan</option>
+                        <option>Brooklyn</option>
+                        <option>Queens</option>
+                        <option>Bronx</option>
+                        <option>Staten Island</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-uppercase" for="coords">Coordinates</label>
+                    <input type="text" id="coords" class="form-control bg-light" readonly required placeholder="Click map to set">
+                </div>
+
+                <div class="form-section-title">2. Resource Info</div>
+                
+                <div class="mb-3">
+                    <label class="form-label" for="name">Resource Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="e.g. Midtown Free Pantry" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="type">Category</label>
+                    <select id="type" class="form-select" required>
+                        <option value="" selected disabled>Choose type...</option>
+                        <option value="Food">🍎 Food & Pantry</option>
+                        <option value="Books">📚 Free Library</option>
+                        <option value="Clothing">👕 Clothing Bank</option>
+                        <option value="Services">⚖️ Legal / Medical Aid</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="form-section-title">3. Times & Frequency</div>
+                
+                <div class="mb-3">
+                    <label class="form-label" for="time_type">Occurs...</label>
+                    <select id="time_type" class="form-select" onchange="updateTimeInputs()">
+                        <option value="onetime">One-time Event</option>
+                        <option value="daily" selected>Daily Hours</option>
+                        <option value="weekly">Weekly Event</option>
+                    </select>
+                </div>
+
+                <div id="time-inputs" class="timing-detail-box">
+                    <!-- Dynamic fields based on selection -->
+                </div>
+
+                <div class="form-section-title">4. Source Tracking</div>
+                
+                <div class="mb-3">
+                    <label class="form-label" for="source">Where did you find this?</label>
+                    <input type="text" id="source" class="form-control" placeholder="Link, social post, or 'Myself'" required>
+                </div>
+
+                <hr class="my-4">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="submitBtn">Submit for Approval</button>
+            </form>
+        </div>
+
+        <div id="map-container">
+            <div id="map"></div>
+
+            <div id="filter-bar">
+                <select id="filter-borough" class="filter-select" onchange="window.renderMarkers()">
+                    <option value="all">Any Borough</option>
+                    <option>Manhattan</option><option>Brooklyn</option><option>Queens</option><option>Bronx</option><option>Staten Island</option>
+                </select>
+                <div class="filter-divider"></div>
+                <select id="filter-type" class="filter-select" onchange="window.renderMarkers()">
+                    <option value="all">Any Resource</option>
+                    <option value="Food">🍎 Food</option><option value="Books">📚 Books</option><option value="Clothing">👕 Clothing</option><option value="Services">⚖️ Services</option>
+                </select>
+                <div class="filter-divider"></div>
+                <select id="filter-day" class="filter-select" onchange="window.renderMarkers()">
+                    <option value="all">Any Day</option>
+                    <option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+                </select>
+            </div>
+
+            <div id="view-search" class="map-overlay-widget search-widget">
+                <input type="text" id="mapSearchInput" class="form-control form-control-sm border-0" placeholder="Find neighborhood...">
+                <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="window.mapSearch()">Go</button>
+            </div>
+            <div id="mode-indicator">
+                <i class="bi bi-cursor-fill me-2"></i>Click map to set location
+            </div>
+            <div id="auth-status-chip" style="display: none; cursor: pointer;" onclick="window.location.href='profile.html'">
+                <span id="userName"></span> 
+                <a href="#" onclick="event.stopPropagation(); window.logout()" class="ms-2 text-danger text-decoration-none">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaWxIZZbKzdhbwgDLpSuZkwGcKjel38A4",
+            authDomain: "soupandsupplies.firebaseapp.com",
+            projectId: "soupandsupplies",
+            storageBucket: "soupandsupplies.firebasestorage.app",
+            messagingSenderId: "133184291298",
+            appId: "1:133184291298:web:c64e1fa6806bae9ff2f9bb",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const chip = document.getElementById('auth-status-chip');
+            if (user) {
+                chip.style.display = 'block';
+                document.getElementById('userName').textContent = user.displayName;
+            } else {
+                chip.style.display = 'none';
+            }
+            
+            // Check if we arrived here from volunteer signup
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('mode') === 'submission') {
+                window.switchMode('submission');
+            }
+        });
+
+        window.logout = () => signOut(auth);
+
+        document.getElementById('contributeLink').onclick = (e) => {
+            e.preventDefault();
+            if (currentUser) {
+                switchMode('submission');
+            } else {
+                window.location.href = 'volunteer.html?redirect=index.html';
+            }
+        };
+
+        const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([40.7306, -73.9352], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        const icons = { 'Food': '🍎', 'Books': '📚', 'Clothing': '👕', 'Services': '⚖️' };
+        const redIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+        let currentMode = 'viewing';
+        let submissionMarker = null;
+        let mapLayers = L.layerGroup().addTo(map);
+
+        // --- CALENDAR LOGIC ---
+        function formatGCalDate(date) {
+            return date.toISOString().replace(/-|:|\.\d+/g, "").split(".")[0];
+        }
+
+        function generateGCalLink(res) {
+            const baseUrl = "https://www.google.com/calendar/render?action=TEMPLATE";
+            const text = encodeURIComponent(res.name);
+            const details = encodeURIComponent(`${res.desc}\n\nShared via Free-Finding`);
+            const location = encodeURIComponent(res.address || `${res.lat},${res.lng}`);
+            let dates = ""; let recur = "";
+
+            if (res.timing.type === 'onetime') {
+                const start = new Date(res.timing.start);
+                const end = new Date(start.getTime() + 60 * 60 * 1000);
+                dates = `${formatGCalDate(start)}/${formatGCalDate(end)}`;
+            } else if (res.timing.type === 'daily') {
+                const start = new Date();
+                const [h, m] = res.timing.open.split(':');
+                start.setHours(h, m, 0);
+                const end = new Date(start);
+                const [eh, em] = res.timing.close.split(':');
+                end.setHours(eh, em, 0);
+                dates = `${formatGCalDate(start)}/${formatGCalDate(end)}`;
+                recur = "&recur=RRULE:FREQ=DAILY";
+            } else if (res.timing.type === 'weekly') {
+                const daysMap = { 'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5, 'Saturday': 6 };
+                const gCalDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+                const start = new Date();
+                const targetDay = daysMap[res.timing.day];
+                start.setDate(start.getDate() + (targetDay + 7 - start.getDay()) % 7);
+                const [h, m] = res.timing.time.split(':');
+                start.setHours(h, m, 0);
+                const end = new Date(start.getTime() + 60 * 60 * 1000);
+                dates = `${formatGCalDate(start)}/${formatGCalDate(end)}`;
+                recur = `&recur=RRULE:FREQ=WEEKLY;BYDAY=${gCalDays[targetDay]}`;
+            }
+            return `${baseUrl}&text=${text}&details=${details}&location=${location}&dates=${dates}${recur}`;
+        }
+
+        // --- DATA FETCHING & FILTERING ---
+        window.renderMarkers = async function() {
+            mapLayers.clearLayers();
+            const f_borough = document.getElementById('filter-borough').value;
+            const f_type = document.getElementById('filter-type').value;
+            const f_day = document.getElementById('filter-day').value;
+
+            try {
+                const q = query(collection(db, "resources"), where("isApproved", "==", true));
+                const querySnapshot = await getDocs(q);
+                
+                querySnapshot.forEach((doc) => {
+                    const res = doc.data();
+                    
+                    // LOCAL FILTERING
+                    if (f_borough !== 'all' && res.borough !== f_borough) return;
+                    if (f_type !== 'all' && res.type !== f_type) return;
+                    if (f_day !== 'all') {
+                        if (res.timing.type === 'daily') { /* Show daily every day */ }
+                        else if (res.timing.type === 'weekly' && res.timing.day !== f_day) return;
+                        else if (res.timing.type === 'onetime') {
+                            const d = new Date(res.timing.start).toLocaleDateString('en-US', { weekday: 'long' });
+                            if (d !== f_day) return;
+                        }
+                    }
+
+                    const marker = L.marker([res.lat, res.lng]);
+                    const gCalUrl = generateGCalLink(res);
+                    const content = `
+                        <div class="popup-header">${icons[res.type] || '📍'} ${res.type}</div>
+                        <div class="popup-body">
+                            <h6 class="fw-bold mb-1">${res.name}</h6>
+                            <p class="small text-muted mb-1">${res.address || ''}</p>
+                            <p class="small text-muted mb-2">${res.desc}</p>
+                            <p class="small mb-3"><strong><i class="bi bi-clock"></i> ${res.timing.label}</strong></p>
+                            <div class="d-grid gap-2">
+                                <a href="${gCalUrl}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-google me-1"></i> Add to Calendar</a>
+                                <button class="btn btn-sm btn-primary rounded-pill" onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${res.lat},${res.lng}')"><i class="bi bi-cursor"></i> Directions</button>
+                            </div>
+                        </div>
+                    `;
+                    marker.bindPopup(content).addTo(mapLayers);
+                });
+            } catch (e) { console.error("Error: ", e); }
+        }
+
+        // --- SUBMISSION LOGIC ---
+        document.getElementById('resourceForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const coordsInput = document.getElementById('coords').value;
+            if (!coordsInput) { alert("Please click on map!"); return; }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Submitting...';
+            
+            const type = document.getElementById('time_type').value;
+            let structuredTime = { type: type };
+            let label = "";
+
+            if (type === 'onetime') {
+                structuredTime.start = document.getElementById('time_onetime').value;
+                label = "One-time Event";
+            } else if (type === 'daily') {
+                structuredTime.open = document.getElementById('time_daily_open').value;
+                structuredTime.close = document.getElementById('time_daily_close').value;
+                label = `Daily: ${structuredTime.open}-${structuredTime.close}`;
+            } else {
+                structuredTime.day = document.getElementById('time_weekly_day').value;
+                structuredTime.time = document.getElementById('time_weekly_hour').value;
+                label = `${structuredTime.day}s at ${structuredTime.time}`;
+            }
+            structuredTime.label = label;
+
+            try {
+                const coords = coordsInput.split(', ');
+                await addDoc(collection(db, "submissions"), {
+                    name: document.getElementById('name').value,
+                    address: document.getElementById('form-address').value,
+                    borough: document.getElementById('borough').value,
+                    lat: parseFloat(coords[0]), lng: parseFloat(coords[1]),
+                    type: document.getElementById('type').value,
+                    desc: document.getElementById('description').value,
+                    source: document.getElementById('source').value,
+                    timing: structuredTime,
+                    isApproved: false,
+                    submittedBy: currentUser ? currentUser.email : 'Anonymous',
+                    createdAt: serverTimestamp()
+                });
+                alert("Submitted!");
+                this.reset();
+                window.switchMode('viewing');
+            } catch (e) { console.error(e); alert("Failed."); } finally { btn.disabled = false; btn.innerHTML = 'Submit'; }
+        });
+
+        // --- UI HELPERS ---
+        window.switchMode = function(mode) {
+            currentMode = mode;
+            document.getElementById('submission-panel').style.display = mode === 'submission' ? 'block' : 'none';
+            document.getElementById('view-search').style.display = mode === 'viewing' ? 'flex' : 'none';
+            document.getElementById('filter-bar').style.display = mode === 'viewing' ? 'flex' : 'none';
+            document.getElementById('mode-indicator').style.display = mode === 'submission' ? 'block' : 'none';
+            
+            // Toggle active tab
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(l => l.classList.remove('active'));
+            if (mode === 'viewing') links[0].classList.add('active');
+            else links[1].classList.add('active');
+
+            if (mode === 'viewing') window.renderMarkers();
+            setTimeout(() => map.invalidateSize(), 100);
+        };
+
+        window.updateTimeInputs = function() {
+            const type = document.getElementById('time_type').value;
+            const container = document.getElementById('time-inputs');
+            if (type === 'onetime') container.innerHTML = `<label class="form-label">Date & Time</label><input type="datetime-local" id="time_onetime" class="form-control" required>`;
+            else if (type === 'daily') container.innerHTML = `<div class="row g-2"><div class="col-6"><label class="form-label">Open</label><input type="time" id="time_daily_open" class="form-control" value="09:00" required></div><div class="col-6"><label class="form-label">Close</label><input type="time" id="time_daily_close" class="form-control" value="17:00" required></div></div>`;
+            else container.innerHTML = `<label class="form-label">Day</label><select id="time_weekly_day" class="form-select mb-2"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label class="form-label">Time</label><input type="time" id="time_weekly_hour" class="form-control" value="12:00" required>`;
+        };
+
+        map.on('click', (e) => {
+            if (currentMode !== 'submission') return;
+            const { lat, lng } = e.latlng;
+            if (submissionMarker) map.removeLayer(submissionMarker);
+
+            submissionMarker = L.marker([lat, lng], {
+                draggable: true
+                
+            }).addTo(map);
+
+            document.getElementById('coords').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        });
+
+        window.findAddress = async () => {
+            const addr = document.getElementById('form-address').value;
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addr + " New York City")}`);
+            const data = await res.json();
+            if (data.length > 0) {
+                const lat = parseFloat(data[0].lat); const lng = parseFloat(data[0].lon);
+                map.flyTo([lat, lng], 16);
+                if (submissionMarker) map.removeLayer(submissionMarker);
+                submissionMarker = L.marker([lat, lng], {
+                    draggable: true,
+
+                }).addTo(map);
+                document.getElementById('coords').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+        };
+
+        window.mapSearch = async () => {
+            const q = document.getElementById('mapSearchInput').value;
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + " New York City")}`);
+            const data = await res.json();
+            if (data.length > 0) map.flyTo([data[0].lat, data[0].lon], 14);
+        };
+
+        window.renderMarkers();
+        window.updateTimeInputs();
+    </script>
+</body>
+</html>
