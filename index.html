@@ -137,6 +137,48 @@
             font-weight: 600;
         }
 
+        #notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 5000;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: none;
+            max-width: 300px;
+            animation: slideIn 0.3s ease-out;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        #notification-toast.success {
+            border-left: 4px solid #28a745;
+            color: #28a745;
+        }
+
+        #notification-toast.error {
+            border-left: 4px solid #dc3545;
+            color: #dc3545;
+        }
+
+        #notification-toast.warning {
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         .timing-detail-box {
             background: #f1f8ff;
             padding: 15px;
@@ -284,6 +326,7 @@
                 <span id="userName"></span> 
                 <a href="#" onclick="event.stopPropagation(); window.logout()" class="ms-2 text-danger text-decoration-none">Logout</a>
             </div>
+            <div id="notification-toast"></div>
         </div>
     </div>
 
@@ -359,6 +402,20 @@
         let currentMode = 'viewing';
         let submissionMarker = null;
         let mapLayers = L.layerGroup().addTo(map);
+
+        // --- NOTIFICATION SYSTEM ---
+        window.showNotification = function(message, type = 'success', duration = 4000) {
+            const toast = document.getElementById('notification-toast');
+            toast.textContent = message;
+            toast.className = type;
+            toast.style.display = 'block';
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, duration);
+            }
+        };
 
         // --- CALENDAR LOGIC ---
         function formatGCalDate(date) {
@@ -450,7 +507,7 @@
         document.getElementById('resourceForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const coordsInput = document.getElementById('coords').value;
-            if (!coordsInput) { alert("Please click on map!"); return; }
+            if (!coordsInput) { window.showNotification("Please click on the map to set a location", 'warning'); return; }
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
@@ -489,10 +546,10 @@
                     submittedBy: currentUser ? currentUser.email : 'Anonymous',
                     createdAt: serverTimestamp()
                 });
-                alert("Submitted!");
+                window.showNotification("Resource submitted successfully!", 'success');
                 this.reset();
                 window.switchMode('viewing');
-            } catch (e) { console.error(e); alert("Failed."); } finally { btn.disabled = false; btn.innerHTML = 'Submit'; }
+            } catch (e) { console.error(e); window.showNotification("Failed to submit resource. Please try again.", 'error'); } finally { btn.disabled = false; btn.innerHTML = 'Submit'; }
         });
 
         // --- UI HELPERS ---
