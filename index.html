@@ -216,6 +216,8 @@
                         <option value="Books">📚 Free Library</option>
                         <option value="Clothing">👕 Clothing Bank</option>
                         <option value="Services">⚖️ Legal / Medical Aid</option>
+                        <option value="Basic Needs">🏠 Basic Needs</option>
+                        <option value="Other">📍 Other</option>
                     </select>
                 </div>
 
@@ -262,7 +264,7 @@
                 <div class="filter-divider"></div>
                 <select id="filter-type" class="filter-select" onchange="window.renderMarkers()">
                     <option value="all">Any Resource</option>
-                    <option value="Food">🍎 Food</option><option value="Books">📚 Books</option><option value="Clothing">👕 Clothing</option><option value="Services">⚖️ Services</option>
+                    <option value="Food">🍎 Food</option><option value="Books">📚 Books</option><option value="Clothing">👕 Clothing</option><option value="Services">⚖️ Services</option><option value="Basic Needs">🏠 Basic Needs</option><option value="Other">📍 Other</option>
                 </select>
                 <div class="filter-divider"></div>
                 <select id="filter-day" class="filter-select" onchange="window.renderMarkers()">
@@ -342,8 +344,10 @@
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
         L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        const icons = { 'Food': '🍎', 'Books': '📚', 'Clothing': '👕', 'Services': '⚖️' };
-        const redIcon = new L.Icon({
+        const icons = { 'Food': '🍎', 'Books': '📚', 'Clothing': '👕', 'Services': '⚖️', 'Basic Needs': '🏠', 'Other': '📍' };
+        
+        // Custom red icon for new submissions
+        const redIcon = L.icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
             iconSize: [25, 41],
@@ -351,6 +355,7 @@
             popupAnchor: [1, -34],
             shadowSize: [41, 41]
         });
+
         let currentMode = 'viewing';
         let submissionMarker = null;
         let mapLayers = L.layerGroup().addTo(map);
@@ -516,17 +521,40 @@
             else container.innerHTML = `<label class="form-label">Day</label><select id="time_weekly_day" class="form-select mb-2"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label class="form-label">Time</label><input type="time" id="time_weekly_hour" class="form-control" value="12:00" required>`;
         };
 
-        map.on('click', (e) => {
+        map.on('click', async (e) => {
             if (currentMode !== 'submission') return;
             const { lat, lng } = e.latlng;
             if (submissionMarker) map.removeLayer(submissionMarker);
-
-            submissionMarker = L.marker([lat, lng], {
-                draggable: true
-                
-            }).addTo(map);
-
+            // Use the RED icon for the marker the user places
+            submissionMarker = L.marker([lat, lng], { draggable: true, icon: redIcon }).addTo(map);
             document.getElementById('coords').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Attempt reverse geocoding to fill in the address
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                if (data && data.address) {
+                    // Build a readable address from the response
+                    const addressField = document.getElementById('form-address');
+                    const addressParts = [];
+                    
+                    // Try to construct a meaningful address
+                    if (data.address.house_number) addressParts.push(data.address.house_number);
+                    if (data.address.road) addressParts.push(data.address.road);
+                    if (data.address.neighbourhood) addressParts.push(data.address.neighbourhood);
+                    if (data.address.city) addressParts.push(data.address.city);
+                    if (data.address.state) addressParts.push(data.address.state);
+                    if (data.address.postcode) addressParts.push(data.address.postcode);
+                    
+                    if (addressParts.length > 0) {
+                        addressField.value = addressParts.join(', ');
+                    }
+                    // If no address found, leave the field blank for manual entry
+                }
+            } catch (e) {
+                console.error("Reverse geocoding error: ", e);
+                // If reverse geocoding fails, leave the address field blank for manual entry
+            }
         });
 
         window.findAddress = async () => {
@@ -537,10 +565,8 @@
                 const lat = parseFloat(data[0].lat); const lng = parseFloat(data[0].lon);
                 map.flyTo([lat, lng], 16);
                 if (submissionMarker) map.removeLayer(submissionMarker);
-                submissionMarker = L.marker([lat, lng], {
-                    draggable: true,
-
-                }).addTo(map);
+                // Use the RED icon here too
+                submissionMarker = L.marker([lat, lng], { draggable: true, icon: redIcon }).addTo(map);
                 document.getElementById('coords').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             }
         };
