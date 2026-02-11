@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Cup shape -->
+  <g transform="translate(50, 50)">
+    <!-- Cup body -->
+    <path d="M -20 -10 L -18 25 Q -18 30 -13 30 L 13 30 Q 18 30 18 25 L 20 -10 Z" fill="#0d6efd" stroke="none"/>
+    <!-- Cup rim -->
+    <rect x="-20" y="-12" width="40" height="3" rx="1.5" fill="#0d6efd"/>
+    <!-- Steam wisps -->
+    <path d="M -8 -20 Q -10 -28 -6 -32" stroke="#0d6efd" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 0 -22 Q -2 -30 2 -34" stroke="#0d6efd" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M 8 -20 Q 6 -28 10 -32" stroke="#0d6efd" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
