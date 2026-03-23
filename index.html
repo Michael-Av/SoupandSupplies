@@ -638,6 +638,122 @@
         window.renderMarkers();
         window.updateTimeInputs();
 
+        // --- MASSIVE DENSE SEEDING SCRIPT ---
+// Refresh once, then DELETE THIS CODE.
+const massiveNycResources = [
+    // --- MANHATTAN ---
+    { name: "LES Community Fridge", address: "129 Stanton St, New York, NY 10002", borough: "Manhattan", lat: 40.7211, lng: -73.9881, type: "Food", desc: "Volunteer-run fridge in the heart of LES.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Harlem Community Fridge", address: "236 W 116th St, New York, NY 10026", borough: "Manhattan", lat: 40.8031, lng: -73.9532, type: "Food", desc: "Providing fresh food to the Harlem community.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "The New York Public Library - Stephen A. Schwarzman Building", address: "476 5th Ave, New York, NY 10018", borough: "Manhattan", lat: 40.7532, lng: -73.9822, type: "Books", desc: "Iconic library with free computer access and resources.", timing: { type: 'daily', label: 'Daily: 10:00-18:00', open: '10:00', close: '18:00' } },
+    { name: "Project Renewal - 3rd St Shelter", address: "8 E 3rd St, New York, NY 10003", borough: "Manhattan", lat: 40.7268, lng: -73.9921, type: "Services", desc: "Healthcare and employment services for the homeless.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "St. Joe's Soup Kitchen", address: "371 6th Ave, New York, NY 10014", borough: "Manhattan", lat: 40.7325, lng: -74.0001, type: "Food", desc: "Serving hot meals every Saturday.", timing: { type: 'weekly', label: 'Saturdays at 11:30', day: 'Saturday', time: '11:30' } },
+    { name: "Chelsea Little Free Library", address: "200 W 24th St, New York, NY 10011", borough: "Manhattan", lat: 40.7445, lng: -73.9962, type: "Books", desc: "Small book exchange box.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Upper West Side Aid Hub", address: "500 West End Ave, New York, NY 10024", borough: "Manhattan", lat: 40.7871, lng: -73.9782, type: "Other", desc: "Information point for local aid services.", timing: { type: 'daily', label: 'Daily: 10:00-16:00', open: '10:00', close: '16:00' } },
+    { name: "City Harvest Mobile Market", address: "St. Nicholas Ave & 117th St, New York, NY 10026", borough: "Manhattan", lat: 40.8045, lng: -73.9512, type: "Food", desc: "Fresh produce distribution.", timing: { type: 'weekly', label: 'Tuesdays at 09:00', day: 'Tuesday', time: '09:00' } },
+    { name: "Washington Heights Medical Aid", address: "601 W 168th St, New York, NY 10032", borough: "Manhattan", lat: 40.8412, lng: -73.9391, type: "Services", desc: "Free basic medical screening clinics.", timing: { type: 'weekly', label: 'Wednesdays at 10:00', day: 'Wednesday', time: '10:00' } },
+    { name: "Alphabet City Clothing Swap", address: "Ave C & E 7th St, New York, NY 10009", borough: "Manhattan", lat: 40.7241, lng: -73.9792, type: "Clothing", desc: "Weekly community clothing exchange.", timing: { type: 'weekly', label: 'Sundays at 12:00', day: 'Sunday', time: '12:00' } },
+
+    // --- BROOKLYN ---
+    { name: "Bed-Stuy Community Fridge (Marcy)", address: "633 DeKalb Ave, Brooklyn, NY 11216", borough: "Brooklyn", lat: 40.6917, lng: -73.9485, type: "Food", desc: "Stocked with fresh veggies and staples.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Bushwick City Farm", address: "354 Stockton St, Brooklyn, NY 11206", borough: "Brooklyn", lat: 40.6975, lng: -73.9392, type: "Food", desc: "Free eggs and organic produce when available.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "Red Hook Community Fridge", address: "159 Pioneer St, Brooklyn, NY 11231", borough: "Brooklyn", lat: 40.6775, lng: -74.0102, type: "Food", desc: "Community fridge in Red Hook.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Brooklyn Public Library - Central", address: "10 Grand Army Plaza, Brooklyn, NY 11238", borough: "Brooklyn", lat: 40.6725, lng: -73.9682, type: "Books", desc: "Large library with extensive free resources.", timing: { type: 'daily', label: 'Daily: 09:00-20:00', open: '09:00', close: '20:00' } },
+    { name: "Williamsburg Aid Station", address: "150 Bedford Ave, Brooklyn, NY 11249", borough: "Brooklyn", lat: 40.7175, lng: -73.9572, type: "Other", desc: "Free transit maps and resource guides.", timing: { type: 'daily', label: 'Daily: 08:00-20:00', open: '08:00', close: '20:00' } },
+    { name: "Park Slope Clothing Bank", address: "400 7th Ave, Brooklyn, NY 11215", borough: "Brooklyn", lat: 40.6665, lng: -73.9812, type: "Clothing", desc: "Gently used professional and casual wear.", timing: { type: 'weekly', label: 'Mondays at 10:00', day: 'Monday', time: '10:00' } },
+    { name: "Flatbush Community Garden", address: "150 Ocean Ave, Brooklyn, NY 11225", borough: "Brooklyn", lat: 40.6591, lng: -73.9621, type: "Food", desc: "Free gardening workshops and surplus harvest.", timing: { type: 'weekly', label: 'Saturdays at 09:00', day: 'Saturday', time: '09:00' } },
+    { name: "Greenpoint Little Free Library", address: "100 Norman Ave, Brooklyn, NY 11222", borough: "Brooklyn", lat: 40.7255, lng: -73.9512, type: "Books", desc: "Community book exchange.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Crown Heights Legal Aid", address: "800 St Johns Pl, Brooklyn, NY 11213", borough: "Brooklyn", lat: 40.6721, lng: -73.9511, type: "Services", desc: "Free tenant-rights legal advice.", timing: { type: 'weekly', label: 'Thursdays at 14:00', day: 'Thursday', time: '14:00' } },
+    { name: "Gowanus Mutual Aid Hub", address: "50 4th St, Brooklyn, NY 11231", borough: "Brooklyn", lat: 40.6781, lng: -73.9921, type: "Basic Needs", desc: "Free hygiene kits and supplies.", timing: { type: 'daily', label: 'Daily: 12:00-18:00', open: '12:00', close: '18:00' } },
+
+    // --- QUEENS ---
+    { name: "Astoria Food Pantry", address: "25-82 Steinway St, Queens, NY 11103", borough: "Queens", lat: 40.7686, lng: -73.9118, type: "Food", desc: "Community-run pantry offering fresh produce.", timing: { type: 'daily', label: 'Daily: 08:00-20:00', open: '08:00', close: '20:00' } },
+    { name: "Sunnyside Fridge", address: "43rd St & Skillman Ave, Queens, NY 11104", borough: "Queens", lat: 40.7465, lng: -73.9205, type: "Food", desc: "Providing essentials to Sunnyside.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Jackson Heights Community Fridge", address: "34-37 73rd St, Queens, NY 11372", borough: "Queens", lat: 40.7512, lng: -73.8921, type: "Food", desc: "Fresh produce and shelf-stable goods.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Flushing Public Library", address: "41-17 Main St, Queens, NY 11355", borough: "Queens", lat: 40.7585, lng: -73.8291, type: "Books", desc: "Largest library in Queens with free programs.", timing: { type: 'daily', label: 'Daily: 10:00-20:00', open: '10:00', close: '20:00' } },
+    { name: "Long Island City Resource Center", address: "5-05 48th Ave, Queens, NY 11101", borough: "Queens", lat: 40.7441, lng: -73.9541, type: "Services", desc: "Help with SNAP and unemployment applications.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "Ridgewood Clothing Exchange", address: "1800 Myrtle Ave, Queens, NY 11385", borough: "Queens", lat: 40.7001, lng: -73.9012, type: "Clothing", desc: "Free clothes for kids and adults.", timing: { type: 'weekly', label: 'Saturdays at 10:00', day: 'Saturday', time: '10:00' } },
+    { name: "Woodside Little Free Library", address: "60th St & Roosevelt Ave, Queens, NY 11377", borough: "Queens", lat: 40.7451, lng: -73.9041, type: "Books", desc: "Take a book, leave a book.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Corona Aid Station", address: "103-01 Roosevelt Ave, Queens, NY 11368", borough: "Queens", lat: 40.7491, lng: -73.8611, type: "Basic Needs", desc: "Emergency basic necessities distribution.", timing: { type: 'daily', label: 'Daily: 11:00-19:00', open: '11:00', close: '19:00' } },
+    { name: "Elmhurst Community Fridge", address: "82-10 Broadway, Queens, NY 11373", borough: "Queens", lat: 40.7421, lng: -73.8811, type: "Food", desc: "Free food outside community center.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Rockaway Aid Collective", address: "90-01 Rockaway Beach Blvd, Queens, NY 11693", borough: "Queens", lat: 40.5851, lng: -73.8141, type: "Other", desc: "Beach-front aid and info station.", timing: { type: 'weekly', label: 'Sundays at 11:00', day: 'Sunday', time: '11:00' } },
+
+    // --- BRONX ---
+    { name: "Mott Haven Fridge", address: "140 St Ann's Ave, Bronx, NY 10454", borough: "Bronx", lat: 40.8055, lng: -73.9171, type: "Food", desc: "Legendary community fridge in the South Bronx.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "The Friendly Fridge BX", address: "4468 Manhattan College Pkwy, Bronx, NY 10471", borough: "Bronx", lat: 40.8906, lng: -73.9011, type: "Food", desc: "Outdoor fridge with fresh food.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "POTS Bronx", address: "2759 Webster Ave, Bronx, NY 10458", borough: "Bronx", lat: 40.8641, lng: -73.8837, type: "Services", desc: "Legal, medical, and dining aid.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "Bronx Library Center", address: "310 E Kingsbridge Rd, Bronx, NY 10458", borough: "Bronx", lat: 40.8631, lng: -73.8911, type: "Books", desc: "Large library with free resources.", timing: { type: 'daily', label: 'Daily: 09:00-21:00', open: '09:00', close: '21:00' } },
+    { name: "Highbridge Clothing Swap", address: "1100 University Ave, Bronx, NY 10452", borough: "Bronx", lat: 40.8351, lng: -73.9281, type: "Clothing", desc: "Swap clothes at the community center.", timing: { type: 'weekly', label: 'Fridays at 15:00', day: 'Friday', time: '15:00' } },
+    { name: "Kingsbridge Little Free Library", address: "250 W 231st St, Bronx, NY 10463", borough: "Bronx", lat: 40.8791, lng: -73.9041, type: "Books", desc: "Free books for the neighborhood.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Pelham Bay Food Pantry", address: "3000 Bruckner Blvd, Bronx, NY 10465", borough: "Bronx", lat: 40.8291, lng: -73.8211, type: "Food", desc: "Serving local residents weekly.", timing: { type: 'weekly', label: 'Wednesdays at 09:00', day: 'Wednesday', time: '09:00' } },
+    { name: "Fordham Resource Hub", address: "400 E Fordham Rd, Bronx, NY 10458", borough: "Bronx", lat: 40.8611, lng: -73.8911, type: "Other", desc: "General information and aid connection.", timing: { type: 'daily', label: 'Daily: 10:00-18:00', open: '10:00', close: '18:00' } },
+    { name: "Belmont Hygiene Station", address: "600 E 187th St, Bronx, NY 10458", borough: "Bronx", lat: 40.8551, lng: -73.8851, type: "Basic Needs", desc: "Free soap, masks, and hygiene supplies.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "Riverdale Aid Station", address: "5600 Riverdale Ave, Bronx, NY 10471", borough: "Bronx", lat: 40.9051, lng: -73.9011, type: "Services", desc: "Senior services and community support.", timing: { type: 'daily', label: 'Daily: 09:00-16:00', open: '09:00', close: '16:00' } },
+
+    // --- STATEN ISLAND ---
+    { name: "Staten Island Community Fridge", address: "206 Bay St, Staten Island, NY 10301", borough: "Staten Island", lat: 40.6361, lng: -74.0759, type: "Food", desc: "Fresh food available 24/7.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Project Hospitality Hub", address: "100 Park Ave, Staten Island, NY 10302", borough: "Staten Island", lat: 40.6358, lng: -74.1378, type: "Services", desc: "Extensive support services for SI.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "St. George Library", address: "5 Central Ave, Staten Island, NY 10301", borough: "Staten Island", lat: 40.6441, lng: -74.0761, type: "Books", desc: "Historic library with free computer use.", timing: { type: 'daily', label: 'Daily: 10:00-18:00', open: '10:00', close: '18:00' } },
+    { name: "New Dorp Food Pantry", address: "150 New Dorp Ln, Staten Island, NY 10306", borough: "Staten Island", lat: 40.5731, lng: -74.1151, type: "Food", desc: "Local food distribution.", timing: { type: 'weekly', label: 'Thursdays at 10:00', day: 'Thursday', time: '10:00' } },
+    { name: "Port Richmond Little Library", address: "75 Bennett St, Staten Island, NY 10302", borough: "Staten Island", lat: 40.6351, lng: -74.1281, type: "Books", desc: "Shared library box.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "SI Clothing Exchange", address: "50 Victory Blvd, Staten Island, NY 10301", borough: "Staten Island", lat: 40.6381, lng: -74.0811, type: "Clothing", desc: "Community clothing donations.", timing: { type: 'weekly', label: 'Tuesdays at 11:00', day: 'Tuesday', time: '11:00' } },
+    { name: "Great Kills Resource Hub", address: "50 Giffords Ln, Staten Island, NY 10308", borough: "Staten Island", lat: 40.5511, lng: -74.1481, type: "Other", desc: "Community aid maps and info.", timing: { type: 'daily', label: 'Daily: 10:00-16:00', open: '10:00', close: '16:00' } },
+    { name: "Mariners Harbor Fridge", address: "200 Brabant St, Staten Island, NY 10303", borough: "Staten Island", lat: 40.6311, lng: -74.1611, type: "Food", desc: "Local community fridge.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Tottenville Aid Point", address: "150 Main St, Staten Island, NY 10307", borough: "Staten Island", lat: 40.5011, lng: -74.2481, type: "Basic Needs", desc: "South SI emergency supplies.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "Stapleton Medical Info", address: "132 Canal St, Staten Island, NY 10304", borough: "Staten Island", lat: 40.6251, lng: -74.0781, type: "Services", desc: "Free medical resource referrals.", timing: { type: 'weekly', label: 'Mondays at 13:00', day: 'Monday', time: '13:00' } },
+
+    // --- MORE DENSITY (MIXED) ---
+    { name: "Greenwich Village Aid", address: "100 W 10th St, New York, NY 10011", borough: "Manhattan", lat: 40.7345, lng: -73.9995, type: "Other", desc: "Local aid network point.", timing: { type: 'daily', label: 'Daily: 10:00-18:00', open: '10:00', close: '18:00' } },
+    { name: "East Village Fridge", address: "Ave A & E 10th St, New York, NY 10009", borough: "Manhattan", lat: 40.7271, lng: -73.9835, type: "Food", desc: "Busy fridge in Tompkins Square area.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Clinton Hill Little Library", address: "Greene Ave & Waverly Ave, Brooklyn, NY 11238", borough: "Brooklyn", lat: 40.6865, lng: -73.9655, type: "Books", desc: "Book swap box.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Sunset Park Aid Hub", address: "44th St & 5th Ave, Brooklyn, NY 11220", borough: "Brooklyn", lat: 40.6481, lng: -74.0051, type: "Other", desc: "Sunset Park info point.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
+    { name: "Queens Village Aid", address: "Springfield Blvd, Queens, NY 11428", borough: "Queens", lat: 40.7251, lng: -73.7451, type: "Services", desc: "Career help and guidance.", timing: { type: 'daily', label: 'Daily: 10:00-17:00', open: '10:00', close: '17:00' } },
+    { name: "Bayside Little Library", address: "Bell Blvd, Queens, NY 11361", borough: "Queens", lat: 40.7651, lng: -73.7711, type: "Books", desc: "Suburban book swap.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "Riverdale Fridge 2", address: "Broadway & 256th St, Bronx, NY 10471", borough: "Bronx", lat: 40.9011, lng: -73.8951, type: "Food", desc: "Fridge near the park.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
+    { name: "West Farms Aid", address: "E 180th St, Bronx, NY 10460", borough: "Bronx", lat: 40.8411, lng: -73.8751, type: "Basic Needs", desc: "Local aid supplies.", timing: { type: 'daily', label: 'Daily: 09:00-18:00', open: '09:00', close: '18:00' } },
+    { name: "Midland Beach Aid", address: "Midland Ave, Staten Island, NY 10306", borough: "Staten Island", lat: 40.5651, lng: -74.0951, type: "Other", desc: "Coastal info station.", timing: { type: 'weekly', label: 'Saturdays at 12:00', day: 'Saturday', time: '12:00' } },
+    { name: "Rosebank Fridge", address: "Tompkins Ave, Staten Island, NY 10305", borough: "Staten Island", lat: 40.6111, lng: -74.0651, type: "Food", desc: "Local food access.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } }
+];
+
+// ADDING RANDOM FILLERS TO REACH 100+
+const types = ["Food", "Books", "Clothing", "Services", "Basic Needs", "Other"];
+const boroughs = ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"];
+const centers = {
+    "Manhattan": [40.78, -73.97], "Brooklyn": [40.67, -73.94], "Queens": [40.72, -73.84],
+    "Bronx": [40.85, -73.88], "Staten Island": [40.57, -74.14]
+};
+
+for (let i = 0; i < 50; i++) {
+    const b = boroughs[Math.floor(Math.random() * boroughs.length)];
+    const t = types[Math.floor(Math.random() * types.length)];
+    massiveNycResources.push({
+        name: `${b} Community ${t} Hub #${i+1}`,
+        address: `Generated for density, ${b}, NY`,
+        borough: b,
+        lat: centers[b][0] + (Math.random() - 0.5) * 0.1,
+        lng: centers[b][1] + (Math.random() - 0.5) * 0.1,
+        type: t,
+        desc: "Added to make map dense and vibrant for demonstration.",
+        timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' }
+    });
+}
+
+async function seedDenseDatabase() {
+    try {
+        for (const res of massiveNycResources) {
+            await addDoc(collection(db, "resources"), {
+                ...res,
+                isApproved: true,
+                source: "Dense Seeder",
+                submittedBy: "Dense Seeder",
+                createdAt: serverTimestamp()
+            });
+        }
+        alert("Dense Seeding Complete! Map is now populated with 100+ items. DELETE this code now.");
+    } catch (e) {
+        console.error("Seeding error:", e);
+    }
+}
+
     </script>
 </body>
 </html>
