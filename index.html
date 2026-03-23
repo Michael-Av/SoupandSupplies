@@ -638,57 +638,6 @@
         window.renderMarkers();
         window.updateTimeInputs();
 
-        // --- ONE-TIME SEEDING SCRIPT ---
-        const nycResources = [
-            { name: "Astoria Food Pantry", address: "25-82 Steinway St, Astoria, NY 11103", borough: "Manhattan", lat: 40.7686, lng: -73.9118, type: "Food", desc: "Community-run pantry offering fresh produce and staples.", timing: { type: 'daily', label: 'Daily: 08:00-20:00', open: '08:00', close: '20:00' } },
-            { name: "Inwood Community Fridge", address: "5030 Broadway, New York, NY 10034", borough: "Manhattan", lat: 40.8675, lng: -73.9212, type: "Food", desc: "Take what you need, leave what you can. 24/7 access.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "St. John’s Bread & Life", address: "795 Lexington Ave, Brooklyn, NY 11221", borough: "Brooklyn", lat: 40.6894, lng: -73.9304, type: "Food", desc: "Digital pantry and hot meals for the community.", timing: { type: 'daily', label: 'Daily: 08:00-12:00', open: '08:00', close: '12:00' } },
-            { name: "Holy Apostles Soup Kitchen", address: "296 9th Ave, New York, NY 10001", borough: "Manhattan", lat: 40.7487, lng: -74.0002, type: "Food", desc: "Largest soup kitchen in NY, serving hot nutritious meals.", timing: { type: 'daily', label: 'Daily: 10:30-12:30', open: '10:30', close: '12:30' } },
-            { name: "Housing Works Bookstore", address: "126 Crosby St, New York, NY 10012", borough: "Manhattan", lat: 40.7246, lng: -73.9976, type: "Books", desc: "Donated books and community space. Profits aid HIV/AIDS.", timing: { type: 'daily', label: 'Daily: 12:00-19:00', open: '12:00', close: '19:00' } },
-            { name: "The Friendly Fridge BX", address: "4468 Manhattan College Pkwy, Bronx, NY 10471", borough: "Bronx", lat: 40.8906, lng: -73.9011, type: "Food", desc: "Outdoor fridge with fresh food, open to all.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "POTS (Part of the Solution)", address: "2759 Webster Ave, Bronx, NY 10458", borough: "Bronx", lat: 40.8641, lng: -73.8837, type: "Services", desc: "Legal aid, medical clinics, and community dining room.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
-            { name: "Little Free Library (Brooklyn Heights)", address: "120 Pierrepont St, Brooklyn, NY 11201", borough: "Brooklyn", lat: 40.6946, lng: -73.9926, type: "Books", desc: "Take a book, share a book. Neighborhood favorite.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "The Bowery Mission", address: "227 Bowery, New York, NY 10002", borough: "Manhattan", lat: 40.7219, lng: -73.9927, type: "Basic Needs", desc: "Shelter, showers, and emergency food services.", timing: { type: 'daily', label: '24/7 Emergency', open: '00:00', close: '23:59' } },
-            { name: "Grassroots Grocery", address: "1380 University Ave, Bronx, NY 10452", borough: "Bronx", lat: 40.8406, lng: -73.9248, type: "Food", desc: "Volunteer-led distribution of fresh surplus produce.", timing: { type: 'weekly', label: 'Saturdays at 10:00', day: 'Saturday', time: '10:00' } },
-            { name: "Ali Forney Center", address: "224 W 35th St, New York, NY 10001", borough: "Manhattan", lat: 40.7523, lng: -73.9918, type: "Basic Needs", desc: "Support for homeless LGBTQ+ youth including meals/housing.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "Queens Library (Forest Hills)", address: "108-19 71st Ave, Forest Hills, NY 11375", borough: "Queens", lat: 40.7215, lng: -73.8435, type: "Services", desc: "Free computer access, job help, and language classes.", timing: { type: 'daily', label: 'Daily: 10:00-18:00', open: '10:00', close: '18:00' } },
-            { name: "Project Hospitality", address: "100 Park Ave, Staten Island, NY 10302", borough: "Staten Island", lat: 40.6358, lng: -74.1378, type: "Services", desc: "Resource center offering healthcare and legal support.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
-            { name: "Staten Island Community Fridge", address: "206 Bay St, Staten Island, NY 10301", borough: "Staten Island", lat: 40.6361, lng: -74.0759, type: "Food", desc: "Fresh food available 24/7 outside Every Thing Goes.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "Legal Aid Society (Queens)", address: "120-46 Queens Blvd, Kew Gardens, NY 11415", borough: "Queens", lat: 40.7101, lng: -73.8294, type: "Services", desc: "Free legal representation for low-income New Yorkers.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
-            { name: "Little Free Library (UWS)", address: "251 W 92nd St, New York, NY 10025", borough: "Manhattan", lat: 40.7925, lng: -73.9749, type: "Books", desc: "Charming wooden box filled with free novels.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "Xavier Mission Soup Kitchen", address: "55 W 15th St, New York, NY 10011", borough: "Manhattan", lat: 40.7383, lng: -73.9951, type: "Food", desc: "Sunday hot lunch for neighbors in need.", timing: { type: 'weekly', label: 'Sundays at 12:00', day: 'Sunday', time: '12:00' } },
-            { name: "Covenant House", address: "460 W 41st St, New York, NY 10036", borough: "Manhattan", lat: 40.7583, lng: -73.9934, type: "Basic Needs", desc: "Emergency shelter and crisis center for youth.", timing: { type: 'daily', label: '24/7 Emergency', open: '00:00', close: '23:59' } },
-            { name: "The People's Fridge", address: "744 Myrtle Ave, Brooklyn, NY 11205", borough: "Brooklyn", lat: 40.6942, lng: -73.9515, type: "Food", desc: "Community fridge serving the Bed-Stuy/Clinton Hill border.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "LSA Family Health Service", address: "333 E 115th St, New York, NY 10029", borough: "Manhattan", lat: 40.7958, lng: -73.9382, type: "Services", desc: "Nursing and social work services for East Harlem.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
-            { name: "Grand Central Food Program", address: "109 E 50th St, New York, NY 10022", borough: "Manhattan", lat: 40.7573, lng: -73.9733, type: "Food", desc: "Nightly meal distribution at several NYC locations.", timing: { type: 'daily', label: 'Nightly: 19:00-21:00', open: '19:00', close: '21:00' } },
-            { name: "Little Free Library (Sunnyside)", address: "43rd St & Skillman Ave, Queens, NY 11104", borough: "Queens", lat: 40.7465, lng: -73.9205, type: "Books", desc: "Take a book, share a book in Sunnyside.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "Brownsville Culinary Center", address: "69 Belmont Ave, Brooklyn, NY 11212", borough: "Brooklyn", lat: 40.6628, lng: -73.9142, type: "Food", desc: "Bakery and community hub offering free culinary training.", timing: { type: 'daily', label: 'Daily: 08:00-16:00', open: '08:00', close: '16:00' } },
-            { name: "Bushwick Ayuda Mutua", address: "133 Jefferson St, Brooklyn, NY 11206", borough: "Brooklyn", lat: 40.7011, lng: -73.9312, type: "Food", desc: "Mutual aid group providing food and essentials.", timing: { type: 'daily', label: 'Variable Hours', open: '09:00', close: '18:00' } },
-            { name: "The LGBT Center", address: "208 W 13th St, New York, NY 10011", borough: "Manhattan", lat: 40.7377, lng: -74.0003, type: "Services", desc: "Free support groups, youth programming, and health aid.", timing: { type: 'daily', label: 'Daily: 09:00-22:00', open: '09:00', close: '22:00' } },
-            { name: "Urban Pathways", address: "575 8th Ave, New York, NY 10018", borough: "Manhattan", lat: 40.7547, lng: -73.9915, type: "Services", desc: "Housing and social services for the homeless population.", timing: { type: 'daily', label: 'Daily: 09:00-17:00', open: '09:00', close: '17:00' } },
-            { name: "Little Free Library (Astoria)", address: "31st Ave & 34th St, Astoria, NY 11106", borough: "Queens", lat: 40.7618, lng: -73.9232, type: "Books", desc: "Beautifully painted community library box.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } },
-            { name: "Relief Bus (Chelsea Park)", address: "W 28th St & 9th Ave, New York, NY 10001", borough: "Manhattan", lat: 40.7502, lng: -74.0012, type: "Services", desc: "Mobile resource center offering soup and connection.", timing: { type: 'weekly', label: 'Wednesdays at 10:00', day: 'Wednesday', time: '10:00' } },
-            { name: "CHIPS Soup Kitchen", address: "200 4th Ave, Brooklyn, NY 11217", borough: "Brooklyn", lat: 40.6791, lng: -73.9827, type: "Food", desc: "Daily soup kitchen and shelter for expectant mothers.", timing: { type: 'daily', label: 'Daily: 11:30-13:00', open: '11:30', close: '13:00' } },
-            { name: "Bed-Stuy Community Fridge", address: "633 DeKalb Ave, Brooklyn, NY 11216", borough: "Brooklyn", lat: 40.6917, lng: -73.9485, type: "Food", desc: "Stocked with fresh veggies and staples by the neighborhood.", timing: { type: 'daily', label: '24/7 Access', open: '00:00', close: '23:59' } }
-        ];
-
-        async function seedDatabase() {
-            try {
-                for (const res of nycResources) {
-                    await addDoc(collection(db, "resources"), {
-                        ...res,
-                        isApproved: true,
-                        source: "Official NYC Resource",
-                        submittedBy: "Official NYC Resource",
-                        createdAt: serverTimestamp()
-                    });
-                }
-                alert("Database Seeded with 30 resources! Please delete the seeder code from your index.html now.");
-            } catch (e) {
-                console.error("Seeding error:", e);
-            }
-        }
-        seedDatabase();
     </script>
 </body>
 </html>
