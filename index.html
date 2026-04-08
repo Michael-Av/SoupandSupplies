@@ -436,7 +436,7 @@
         window.updateTimeInputs = function() {
             const type = document.getElementById('time_type').value;
             const container = document.getElementById('time-inputs');
-            if (type === 'onetime') container.innerHTML = `<label class="form-label" for="time_onetime">Date & Time</label><input type="datetime-local" id="time_onetime" class="form-control" required>`;
+            if (type === 'onetime') container.innerHTML = `<label class="form-label">Date & Time</label><input type="datetime-local" id="time_onetime" class="form-control" required>`;
             else if (type === 'daily') container.innerHTML = `<div class="row g-2"><div class="col-6"><label class="form-label">Open</label><input type="time" id="time_daily_open" class="form-control" value="09:00" required></div><div class="col-6"><label class="form-label">Close</label><input type="time" id="time_daily_close" class="form-control" value="17:00" required></div></div>`;
             else container.innerHTML = `<label class="form-label">Day</label><select id="time_weekly_day" class="form-select mb-2"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select><label class="form-label">Time</label><input type="time" id="time_weekly_hour" class="form-control" value="12:00" required>`;
         };
@@ -495,7 +495,6 @@
                 let count = 0;
                 for (const d of snapshot.docs) {
                     const data = d.data();
-                    // Delete if name contains "Aid Center #" OR if source is one of the seeders
                     if (data.name.includes("Aid Center #") || ["System Seeder", "Dense System Seeder", "Dense Seeder"].includes(data.source)) {
                         await deleteDoc(doc(db, "resources", d.id));
                         count++;
@@ -506,7 +505,7 @@
         }
 
         window.renderMarkers(); window.updateTimeInputs();
-        cleanupJunkResources(); // REMOVE // AND REFRESH ONCE
+        // cleanupJunkResources(); 
     </script>
 </body>
 </html>
